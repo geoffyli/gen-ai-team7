@@ -28,9 +28,12 @@ public class StatsRepository {
                     ) AS busiest_currency,
                     (SELECT MAX(rate_date) FROM fx_rate) AS latest_rate_date
                 """,
-                (rs, rowNum) -> new StatsResponse(
-                        rs.getLong("total_transfers"),
-                        rs.getString("busiest_currency"),
-                        rs.getDate("latest_rate_date").toLocalDate()));
+                (rs, rowNum) -> {
+                    var latest = rs.getDate("latest_rate_date");
+                    return new StatsResponse(
+                            rs.getLong("total_transfers"),
+                            rs.getString("busiest_currency"),
+                            latest == null ? null : latest.toLocalDate());
+                });
     }
 }
