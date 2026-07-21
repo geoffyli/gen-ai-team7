@@ -174,6 +174,11 @@ board of what's done and what's next.
 
 ## Team 07
 
+- Geoff Li
+- 
+- 
+- 
+
 ---
 
 <details>
