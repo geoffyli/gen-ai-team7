@@ -12,9 +12,9 @@
     <nav class="menu">
       <a href="/" class="active">Welcome</a>
       <a href="/currencies.html">Currencies</a>
-      <a href="#" class="todo">Rates</a>
-      <a href="#" class="todo">Convert</a>
-      <a href="#" class="todo">History</a>
+      <a href="/#rates">Rates</a>
+      <a href="/convert.html">Convert</a>
+      <a href="/history.html">History</a>
     </nav>
   </header>
 
@@ -62,6 +62,37 @@
       built in <span class="mono">com.fx.sample</span>, then copy that slice for your first
       real feature. Full guidance: <span class="mono">README.md</span>.
     </p>
+
+    <div class="panel" id="rates">
+      <h2>Latest rates</h2>
+      <p class="lede" style="margin-bottom:.6rem">
+        Every pair's most recent rate, read from <span class="mono">GET /api/rates</span>.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Base</th><th>Quote</th><th>Rate</th><th>Rate date</th></tr>
+        </thead>
+        <tbody id="rates-rows">
+          <tr><td colspan="4" class="status">Loading…</td></tr>
+        </tbody>
+      </table>
+      <p id="rates-status" class="status"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Look up a pair</h2>
+      <p class="lede" style="margin-bottom:.6rem">
+        One specific pair, via <span class="mono">GET /api/rates/{base}/{quote}</span>.
+      </p>
+      <form id="lookup-form" autocomplete="off">
+        <input name="base" maxlength="3" placeholder="Base (e.g. EUR)" required style="text-transform:uppercase">
+        <input name="quote" maxlength="3" placeholder="Quote (e.g. USD)" required style="text-transform:uppercase">
+        <button type="submit">Look up</button>
+      </form>
+      <p id="lookup-result" class="status"></p>
+    </div>
   </main>
+
+  <script src="/js/rates.js"></script>
 </body>
 </html>
