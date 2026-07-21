@@ -188,3 +188,5 @@ board of what's done and what's next.
   coordination. Say so at the start and the end.
 - Same skeleton-plus-specs shape as the Week-3 neo-capstone — this is the rehearsal.
 </details>
+
+team 7
