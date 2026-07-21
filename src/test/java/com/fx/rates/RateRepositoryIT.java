@@ -59,4 +59,18 @@ class RateRepositoryIT {
     void unknownPairIsEmpty() {
         assertThat(repo.findLatest("EUR", "XXX")).isEmpty();
     }
+
+    @Test
+    void eurUsdHistoryIsThreeRowsOldestToNewest() {
+        var history = repo.findHistory("EUR", "USD");
+        assertThat(history).hasSize(3);
+        assertThat(history.get(0).rateDate()).isEqualTo(LocalDate.of(2026, 1, 10));
+        assertThat(history.get(2).rateDate()).isEqualTo(LocalDate.of(2026, 1, 12));
+        assertThat(history.get(2).rate()).isEqualByComparingTo(new BigDecimal("1.0818"));
+    }
+
+    @Test
+    void unknownPairHistoryIsEmpty() {
+        assertThat(repo.findHistory("EUR", "XXX")).isEmpty();
+    }
 }
