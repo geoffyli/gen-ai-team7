@@ -51,4 +51,12 @@ public class RateRepository {
                 MAPPER, base, quote);
         return rows.stream().findFirst();
     }
+
+    /** Every row for one pair, oldest -> newest. Empty list for an unknown pair. */
+    public List<Rate> findHistory(String base, String quote) {
+        return jdbc.query(
+                "SELECT base_code, quote_code, rate, rate_date FROM fx_rate "
+                        + "WHERE base_code = ? AND quote_code = ? ORDER BY rate_date ASC",
+                MAPPER, base, quote);
+    }
 }
