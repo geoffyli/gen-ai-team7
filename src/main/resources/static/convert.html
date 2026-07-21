@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FX App — Convert</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <span class="brand"><span class="fx">FX</span> App</span>
+      <nav class="menu">
+        <a href="/">Welcome</a>
+        <a href="/currencies.html">Currencies</a>
+        <a href="/#rates">Rates</a>
+        <a href="/convert.html" class="active">Convert</a>
+        <a href="/history.html">History</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Convert currency</h1>
+      <p class="lede">
+        Pick a pair and an amount to see the converted total and the fee, via
+        <span class="mono">GET /api/convert</span>.
+      </p>
+
+      <div class="panel">
+        <form id="convert-form" autocomplete="off">
+          <input
+            name="base"
+            maxlength="3"
+            placeholder="Base (e.g. EUR)"
+            required
+            style="text-transform: uppercase"
+          />
+          <input
+            name="quote"
+            maxlength="3"
+            placeholder="Quote (e.g. USD)"
+            required
+            style="text-transform: uppercase"
+          />
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            placeholder="Amount (e.g. 100)"
+            required
+          />
+          <button type="submit">Convert</button>
+        </form>
+        <p id="convert-status" class="status"></p>
+
+        <div
+          id="convert-result"
+          class="panel"
+          style="display: none; margin-top: 1rem"
+        >
+          <table>
+            <tbody>
+              <tr>
+                <th>Amount</th>
+                <td id="r-amount"></td>
+              </tr>
+              <tr>
+                <th>Rate</th>
+                <td id="r-rate"></td>
+              </tr>
+              <tr>
+                <th>Converted</th>
+                <td id="r-converted"></td>
+              </tr>
+              <tr>
+                <th>Fee</th>
+                <td id="r-fee"></td>
+              </tr>
+              <tr>
+                <th>Total</th>
+                <td id="r-total"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" id="save-panel" style="display: none">
+        <h2>
+          Save this conversion to history
+          <span class="status">(records a transfer)</span>
+        </h2>
+        <form id="save-form" autocomplete="off">
+          <input
+            name="fromAccount"
+            type="number"
+            min="1"
+            placeholder="From account id"
+            value="1"
+            required
+          />
+          <input
+            name="toAccount"
+            type="number"
+            min="1"
+            placeholder="To account id"
+            value="2"
+            required
+          />
+          <button type="submit">Save transfer</button>
+        </form>
+        <p id="save-status" class="status"></p>
+      </div>
+    </main>
+
+    <script src="/js/convert.js"></script>
+  </body>
+</html>
