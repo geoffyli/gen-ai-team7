@@ -176,8 +176,8 @@ board of what's done and what's next.
 
 - Geoff Li
 - Coco
-- 
-- 
+- Rick
+- Carrie
 
 ---
 
