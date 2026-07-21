@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FX App — Currencies</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand"><span class="fx">FX</span> App</span>
+    <nav class="menu">
+      <a href="/">Welcome</a>
+      <a href="/currencies.html" class="active">Currencies</a>
+      <a href="#" class="todo">Rates</a>
+      <a href="#" class="todo">Convert</a>
+      <a href="#" class="todo">History</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Supported currencies</h1>
+    <p class="lede">
+      The complete <strong>sample feature</strong>, showing both halves of the pattern.
+      The table <strong>reads</strong> <span class="mono">GET /api/currencies</span>; the form below
+      <strong>writes</strong> <span class="mono">POST /api/currencies</span> (a <span class="mono">fetch</span>
+      with a JSON body). Backend → API → UI, read and write — copy this shape for Rates, Convert and History.
+    </p>
+
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Name</th><th>Symbol</th></tr>
+        </thead>
+        <tbody id="rows">
+          <tr><td colspan="3" class="status">Loading…</td></tr>
+        </tbody>
+      </table>
+      <p id="status" class="status"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Add a currency <span class="status">(sample write path)</span></h2>
+      <form id="add-form" autocomplete="off">
+        <input name="code" maxlength="3" placeholder="Code (e.g. NZD)" required style="text-transform:uppercase">
+        <input name="name" placeholder="Name (e.g. NZ Dollar)" required>
+        <input name="symbol" maxlength="4" placeholder="Symbol (e.g. NZ$)">
+        <button type="submit">Add</button>
+      </form>
+      <p id="form-status" class="status"></p>
+    </div>
+  </main>
+
+  <script src="/js/currencies.js"></script>
+</body>
+</html>

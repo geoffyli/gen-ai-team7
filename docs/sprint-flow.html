@@ -1,0 +1,553 @@
+<title>FX Sprint — The Feature's Journey</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    /* dark-first (default) */
+    --bg:#0f1420; --panel:#182234; --panel-2:#1f2c42; --panel-3:#243452;
+    --ink:#e8edf5; --muted:#9fb0c7; --faint:#6c7f9c; --border:#2a3852; --border-2:#33456533;
+    --mint:#4bd6a0; --blue:#5aa2ff; --amber:#e6a15a; --red:#e06a6a; --purple:#c78bff;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --font-sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:light){
+    :root{
+      --bg:#eef2f8; --panel:#ffffff; --panel-2:#f2f6fc; --panel-3:#e7eef8;
+      --ink:#16233a; --muted:#5a6b85; --faint:#8393ab; --border:#d3ddec; --border-2:#c7d3e6aa;
+      --mint:#1f9e73; --blue:#2f74d0; --amber:#c07a24; --red:#c4483f; --purple:#8a54cf;
+      --shadow:0 10px 28px rgba(30,50,90,.12);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1420; --panel:#182234; --panel-2:#1f2c42; --panel-3:#243452;
+    --ink:#e8edf5; --muted:#9fb0c7; --faint:#6c7f9c; --border:#2a3852; --border-2:#33456533;
+    --mint:#4bd6a0; --blue:#5aa2ff; --amber:#e6a15a; --red:#e06a6a; --purple:#c78bff;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef2f8; --panel:#ffffff; --panel-2:#f2f6fc; --panel-3:#e7eef8;
+    --ink:#16233a; --muted:#5a6b85; --faint:#8393ab; --border:#d3ddec; --border-2:#c7d3e6aa;
+    --mint:#1f9e73; --blue:#2f74d0; --amber:#c07a24; --red:#c4483f; --purple:#8a54cf;
+    --shadow:0 10px 28px rgba(30,50,90,.12);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, color-mix(in srgb, var(--blue) 10%, transparent), transparent 60%),
+      radial-gradient(1000px 500px at 110% 0%, color-mix(in srgb, var(--mint) 8%, transparent), transparent 55%),
+      var(--bg);
+    color:var(--ink); font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased; line-height:1.5; min-height:100vh;
+  }
+  .wrap{max-width:1200px; margin:0 auto; padding:22px 20px 60px}
+  .mono{font-family:var(--font-mono)}
+  h1,h2,h3{margin:0; text-wrap:balance}
+
+  /* ---------- header ---------- */
+  header.top{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px}
+  .brand{display:flex; align-items:center; gap:11px; margin-right:auto}
+  .glyph{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--mint),var(--blue)); color:#0b1220; font-weight:800; font-size:15px;
+    box-shadow:0 4px 14px color-mix(in srgb,var(--mint) 35%,transparent)}
+  .brand h1{font-size:16.5px; letter-spacing:.2px}
+  .brand .sub{font-size:12px; color:var(--muted); margin-top:1px}
+
+  .clock{display:flex; align-items:center; gap:9px; padding:7px 12px; border:1px solid var(--border);
+    border-radius:10px; background:color-mix(in srgb,var(--panel) 70%,transparent); font-size:12.5px}
+  .clock .dot{width:7px;height:7px;border-radius:50%;background:var(--mint); box-shadow:0 0 0 0 color-mix(in srgb,var(--mint) 60%,transparent); animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--mint) 55%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  .clock b{font-variant-numeric:tabular-nums}
+  .clock .muted{color:var(--muted)}
+
+  .iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--panel);
+    color:var(--ink);cursor:pointer;display:grid;place-items:center;font-size:15px}
+  .iconbtn:hover{background:var(--panel-2)}
+
+  /* segmented toggle */
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:4px;gap:3px}
+  .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;
+    padding:8px 15px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:7px}
+  .seg button .i{font-family:var(--font-mono);opacity:.8}
+  .seg button.active{background:linear-gradient(180deg,var(--panel-3),var(--panel-2));color:var(--ink);
+    box-shadow:inset 0 0 0 1px var(--border-2)}
+
+  .rule-banner{display:flex;align-items:center;gap:10px;margin:2px 0 20px;padding:10px 14px;border-radius:11px;
+    border:1px solid color-mix(in srgb,var(--mint) 35%,var(--border));
+    background:color-mix(in srgb,var(--mint) 9%,var(--panel)); font-size:13px}
+  .rule-banner b{color:var(--mint)}
+  .rule-banner .k{color:var(--muted)}
+
+  section[hidden]{display:none}
+
+  /* ---------- FLOW ---------- */
+  .flow-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .flow-head h2{font-size:15px}
+  .flow-head p{margin:0;color:var(--muted);font-size:12.5px;max-width:52ch}
+  .play{margin-left:auto;display:flex;align-items:center;gap:9px}
+  .play button{border:1px solid var(--border);background:var(--panel);color:var(--ink);font:inherit;font-weight:600;
+    font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .play button:hover{background:var(--panel-2)}
+  .play button .tri{color:var(--mint)}
+  .play .who{font-size:12px;color:var(--muted)}
+  .play .who b{color:var(--ink)}
+
+  .track-scroll{overflow-x:auto;padding:8px 2px 16px;scrollbar-width:thin}
+  .track{position:relative;display:flex;gap:0;min-width:1180px;padding-top:8px}
+  .runner{position:absolute;top:-2px;left:0;width:30px;height:30px;border-radius:9px;z-index:6;
+    display:grid;place-items:center;font-size:13px;font-weight:800;color:#0b1220;
+    background:linear-gradient(135deg,var(--blue),var(--mint));box-shadow:0 6px 16px rgba(0,0,0,.4);
+    transform:translateX(-100px);transition:transform .7s cubic-bezier(.5,.05,.3,1);opacity:0}
+  .runner.on{opacity:1}
+
+  .stop{position:relative;flex:1 1 0;min-width:112px;padding:0 6px}
+  .stop .line{position:absolute;top:40px;left:50%;right:-50%;height:3px;background:var(--border);z-index:0}
+  .stop:last-child .line{display:none}
+  .stop .line.done{background:linear-gradient(90deg,var(--mint),var(--mint))}
+  .node{position:relative;z-index:2;width:34px;height:34px;margin:24px auto 0;border-radius:11px;
+    display:grid;place-items:center;font-size:15px;border:1px solid var(--border);background:var(--panel-2);
+    cursor:pointer;transition:transform .15s, box-shadow .2s, border-color .2s}
+  .stop .node:hover{transform:translateY(-2px)}
+  .stop.lit .node{border-color:var(--mint);box-shadow:0 0 0 4px color-mix(in srgb,var(--mint) 20%,transparent)}
+  .stop.gate .node{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 14%,var(--panel-2))}
+  .stop.gate.open .node{border-color:var(--mint);background:color-mix(in srgb,var(--mint) 15%,var(--panel-2))}
+  .stop .lbl{margin-top:9px;text-align:center;font-size:11.5px;font-weight:600;line-height:1.25}
+  .stop .num{display:block;font-family:var(--font-mono);font-size:10px;color:var(--faint);margin-bottom:2px}
+  .stop.gate .lbl b{color:var(--amber)}
+  .stop.gate.open .lbl b{color:var(--mint)}
+
+  .detail{margin:14px 0 4px;border:1px solid var(--border);border-radius:13px;background:var(--panel);
+    padding:0;overflow:hidden;max-height:0;transition:max-height .3s ease;box-shadow:var(--shadow)}
+  .detail.open{max-height:340px}
+  .detail .inner{padding:16px 18px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+  .detail h3{font-size:14.5px;display:flex;align-items:center;gap:9px}
+  .detail .tag{font-size:10.5px;font-family:var(--font-mono);color:var(--muted);border:1px solid var(--border);
+    padding:2px 7px;border-radius:6px}
+  .detail p{margin:8px 0 0;color:var(--muted);font-size:13px;max-width:60ch}
+  .detail .cmd{margin-top:12px;font-family:var(--font-mono);font-size:12.5px;background:var(--bg);
+    border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--ink);overflow-x:auto;white-space:nowrap}
+  .detail .cmd .c{color:var(--faint)}
+  .detail .side{min-width:180px;flex:1}
+  .detail .done-when{font-size:12px;color:var(--muted)}
+  .detail .done-when b{color:var(--ink)}
+  .tiers{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .tier{font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);font-family:var(--font-mono)}
+  .tier.unit{color:var(--blue);border-color:color-mix(in srgb,var(--blue) 45%,var(--border))}
+  .tier.db{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 45%,var(--border))}
+  .tier.smoke{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 45%,var(--border))}
+
+  /* git graph */
+  .graph-wrap{margin-top:6px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--panel) 55%,transparent);padding:12px 14px}
+  .graph-wrap .cap{font-size:11.5px;color:var(--muted);margin-bottom:2px;display:flex;gap:8px;align-items:center}
+  .graph-scroll{overflow-x:auto}
+  svg.graph{display:block;min-width:820px}
+
+  /* ---------- BOARD ---------- */
+  .scorebar{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px}
+  .stat{border:1px solid var(--border);border-radius:13px;background:var(--panel);padding:13px 15px}
+  .stat .n{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+  .stat .l{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .stat.merged .n{color:var(--mint)} .stat.review .n{color:var(--blue)}
+  .stat.progress .n{color:var(--amber)} .stat.rest .n{color:var(--muted)}
+  .burn{grid-column:1/-1;border:1px solid var(--border);border-radius:13px;background:var(--panel);padding:12px 15px}
+  .burn .top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+  .burn .bar{height:12px;border-radius:8px;background:var(--panel-3);overflow:hidden;display:flex}
+  .burn .bar span{height:100%}
+  .burn .mint{background:var(--mint)} .burn .blue{background:var(--blue)} .burn .amber{background:var(--amber)}
+
+  .trunk-wrap{border:1px solid var(--border);border-radius:13px;background:var(--panel);padding:13px 16px;margin-bottom:22px}
+  .trunk-wrap .cap{font-size:11.5px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .trunk{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+  .commit{display:flex;align-items:center;flex:0 0 auto}
+  .commit .c-dot{width:15px;height:15px;border-radius:50%;background:var(--mint);border:3px solid var(--panel);
+    box-shadow:0 0 0 1.5px var(--mint)}
+  .commit .c-dot.seed{background:var(--faint);box-shadow:0 0 0 1.5px var(--faint)}
+  .commit .c-line{width:54px;height:3px;background:var(--border)}
+  .commit .c-lbl{margin-left:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .commit:last-child .c-line{display:none}
+
+  .group-title{display:flex;align-items:center;gap:10px;margin:8px 0 12px;font-size:13px;color:var(--muted)}
+  .group-title .pillhint{font-size:11px;color:var(--faint)}
+  .group-title .bar{flex:1;height:1px;background:var(--border)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:13px;margin-bottom:26px}
+  .card{border:1px solid var(--border);border-radius:14px;background:var(--panel);padding:14px;cursor:pointer;
+    position:relative;transition:border-color .18s,transform .18s,box-shadow .18s;overflow:hidden}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--border-2)}
+  .card .stripe{position:absolute;left:0;top:0;bottom:0;width:3px}
+  .card.s-merged .stripe{background:var(--mint)} .card.s-in-review .stripe{background:var(--blue)}
+  .card.s-in-progress .stripe{background:var(--amber)} .card.s-not-started .stripe{background:var(--border)}
+  .card .row1{display:flex;align-items:center;gap:8px}
+  .card .rid{font-family:var(--font-mono);font-size:12px;color:var(--faint)}
+  .card .badge{font-size:10px;font-family:var(--font-mono);padding:2px 7px;border-radius:6px;border:1px solid var(--border);color:var(--muted)}
+  .card .badge.DB{color:var(--mint)} .card .badge.API{color:var(--blue)} .card .badge.FE{color:var(--purple)}
+  .card .badge.full{color:var(--amber)}
+  .card h3{font-size:14px;margin:9px 0 3px;line-height:1.25}
+  .card .branch{font-family:var(--font-mono);font-size:11px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .meta{display:flex;align-items:center;gap:8px;margin-top:11px}
+  .pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px}
+  .pill.merged{color:var(--mint);background:color-mix(in srgb,var(--mint) 13%,transparent);border-color:color-mix(in srgb,var(--mint) 30%,transparent)}
+  .pill.in-review{color:var(--blue);background:color-mix(in srgb,var(--blue) 13%,transparent);border-color:color-mix(in srgb,var(--blue) 30%,transparent)}
+  .pill.in-progress{color:var(--amber);background:color-mix(in srgb,var(--amber) 13%,transparent);border-color:color-mix(in srgb,var(--amber) 30%,transparent)}
+  .pill.not-started{color:var(--muted);background:var(--panel-2)}
+  .pill .pdot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pill.in-review .pdot,.pill.in-progress .pdot{animation:pulse2 1.6s infinite}
+  @keyframes pulse2{50%{opacity:.35}}
+  .av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:700;
+    color:#0b1220;margin-left:auto;cursor:pointer;border:2px solid transparent}
+  .av.unclaimed{background:transparent;color:var(--faint);border:1px dashed var(--border);font-weight:600;font-size:15px}
+  .ci{font-size:10.5px;font-family:var(--font-mono);display:inline-flex;align-items:center;gap:5px;color:var(--muted)}
+  .ci .cidot{width:6px;height:6px;border-radius:50%}
+  .ci.green .cidot{background:var(--mint)} .ci.running .cidot{background:var(--amber);animation:pulse2 1s infinite}
+  .hazard{margin-top:9px;font-size:10.5px;color:var(--amber);display:flex;align-items:center;gap:5px}
+  .blocked{margin-top:9px;font-size:10.5px;color:var(--faint);display:flex;align-items:center;gap:5px}
+  .card .back{margin-top:11px;border-top:1px solid var(--border);padding-top:10px;display:none}
+  .card.flipped .back{display:block}
+  .card .back .ac{font-size:11.5px;color:var(--muted);margin:0 0 5px;padding-left:15px;position:relative}
+  .card .back .ac:before{content:"›";position:absolute;left:2px;color:var(--mint)}
+  .card.dim{opacity:.32;filter:saturate(.5)}
+  .card.hl{box-shadow:0 0 0 2px var(--purple),var(--shadow)}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
+  .legend .li{display:flex;align-items:center;gap:6px}
+  .legend .sw{width:10px;height:10px;border-radius:3px}
+
+  footer{margin-top:26px;font-size:11.5px;color:var(--faint);text-align:center}
+  a{color:var(--blue)}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media (max-width:560px){.wrap{padding:16px 13px 50px}.brand .sub{display:none}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="glyph">FX</div>
+      <div><h1>The Feature's Journey</h1><div class="sub">Team <b id="teamName"></b> · GenAI sprint on the FX App</div></div>
+    </div>
+    <div class="clock"><span class="dot"></span><span class="muted">sprint</span> <b id="clkElapsed"></b> <span class="muted">/</span> <b id="clkTotal"></b></div>
+    <button class="iconbtn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle theme">◑</button>
+  </header>
+
+  <div class="seg" role="tablist" aria-label="View">
+    <button id="tabFlow" class="active" role="tab"><span class="i">⎔</span> The Flow</button>
+    <button id="tabBoard" role="tab"><span class="i">▤</span> The Board</button>
+  </div>
+
+  <div class="rule-banner"><span>⚑</span><span class="k">The one rule —</span> <b>a feature is done only when it works and is merged to <span class="mono">main</span>.</b> <span class="k">·&nbsp; main is protected: nothing lands without a green CI check and a teammate's review.</span></div>
+
+  <!-- ================= FLOW ================= -->
+  <section id="flow">
+    <div class="flow-head">
+      <div>
+        <h2>Every feature travels this line</h2>
+        <p>Ten stops from idea to <span class="mono">main</span>. The last two are <b style="color:var(--amber)">gates</b> — the only way onto the trunk. Tap a stop for the command; hit Play to watch one feature run the whole line.</p>
+      </div>
+      <div class="play">
+        <span class="who" id="playWho"></span>
+        <button id="playBtn"><span class="tri">▶</span> Play a feature</button>
+      </div>
+    </div>
+
+    <div class="track-scroll">
+      <div class="track" id="track"><div class="runner" id="runner">03</div></div>
+    </div>
+
+    <div class="detail" id="detail" aria-live="polite"><div class="inner" id="detailInner"></div></div>
+
+    <div class="graph-wrap">
+      <div class="cap"><span>◴</span> Several branches in flight at once — all merging into one <span class="mono">main</span></div>
+      <div class="graph-scroll"><svg class="graph" id="graph" height="150" role="img" aria-label="Git graph of branches merging into main"></svg></div>
+    </div>
+  </section>
+
+  <!-- ================= BOARD ================= -->
+  <section id="board" hidden>
+    <div class="scorebar" id="scorebar"></div>
+
+    <div class="trunk-wrap">
+      <div class="cap"><span>⌥</span> <span class="mono">main</span> — what's already merged and running</div>
+      <div class="trunk" id="trunk"></div>
+    </div>
+
+    <div class="group-title"><span>① Sequenced — <b style="color:var(--ink)">build in order</b></span><span class="pillhint">each builds on the last</span><span class="bar"></span></div>
+    <div class="cards" id="cardsSeq"></div>
+
+    <div class="group-title"><span>② Parallel — <b style="color:var(--ink)">grab any, any time</b></span><span class="pillhint">single-layer · different owners at once</span><span class="bar"></span></div>
+    <div class="cards" id="cardsPar"></div>
+
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <footer>Tap a card for its acceptance criteria · tap an avatar to spotlight one person's work · this is a live snapshot — swap the data for your team's real state.</footer>
+</div>
+
+<script>
+const DATA = {
+  team:"Cable",
+  sprint:{elapsed:"1h 40m", total:"3h 00m"},
+  main:{trunk:["skeleton","01 rates listing","06 currency-pairs"]},
+  score:{merged:2, inReview:2, inProgress:2, notStarted:4, total:10},
+  members:{
+    amara:{name:"Amara", role:"repo owner", color:"#4bd6a0"},
+    bo:{name:"Bo", color:"#5aa2ff"},
+    chen:{name:"Chen", color:"#e6a15a"},
+    deniz:{name:"Deniz", color:"#c78bff"}
+  },
+  reqs:[
+    {id:"01",title:"Rates listing",track:"seq",layer:"full",owner:"amara",branch:"feat/01-rates-listing",status:"merged",tests:["unit","db"],
+      ac:["GET /api/rates → latest per pair","EUR/USD = 1.0818","empty DB → [] not 500"]},
+    {id:"02",title:"Single-pair lookup",track:"seq",layer:"API",owner:"bo",branch:"feat/02-pair-lookup",status:"in-review",ci:"green",dep:["01"],shares:"home page (w/ 01)",tests:["unit"],
+      ac:["GET /api/rates/EUR/USD = 1.0818","unknown pair → 404 JSON","home page selector"]},
+    {id:"03",title:"Conversion calculator",track:"seq",layer:"API",owner:"chen",branch:"feat/03-conversion-calculator",status:"in-progress",dep:["01"],tests:["unit"],
+      ac:["100 EUR → 108.18 USD","fee tiers: 5000→25.00, 100→1.00","amount ≤ 0 → error"]},
+    {id:"04",title:"Record & list transfers",track:"seq",layer:"full",owner:null,branch:"feat/04-transfers",status:"not-started",dep:["03"],tests:["unit","db"],
+      ac:["a conversion writes a transfer row","GET /api/transfers newest-first","3 conversions → 3 rows"]},
+    {id:"05",title:"Validation & errors",track:"seq",layer:"API",owner:null,branch:"feat/05-validation-errors",status:"not-started",dep:["02","03","04"],tests:["unit"],
+      ac:["bad input → 4xx {error}","never a stack trace","3 bad curls → 3 clean messages"]},
+    {id:"06",title:"Tradeable-pairs table",track:"par",layer:"DB",owner:"deniz",branch:"feat/06-currency-pairs",status:"merged",tests:["db"],
+      ac:["currency_pair table seeded","health endpoint shows the count","DB-only — verify via /api/health/db"]},
+    {id:"07",title:"Market-stats endpoint",track:"par",layer:"API",owner:"deniz",branch:"feat/07-api-stats",status:"in-progress",shares:"web package (w/ 08)",tests:["unit"],
+      ac:["GET /api/stats","totalTransfers = 200","latestRateDate = 2026-01-12"]},
+    {id:"08",title:"Rate-history endpoint",track:"par",layer:"API",owner:null,branch:"feat/08-rate-history",status:"not-started",shares:"web package (w/ 07)",tests:["unit"],
+      ac:["EUR/USD history: 3 rows oldest→newest","ends at 1.0818","unknown pair → []"]},
+    {id:"09",title:"About page",track:"par",layer:"FE",owner:"amara",branch:"feat/09-about-page",status:"in-review",ci:"running",shares:"nav (w/ 10)",tests:["smoke"],
+      ac:["/about.html loads, styled","in the nav on every page","FE-only — verify in browser"]},
+    {id:"10",title:"Filter currencies list",track:"par",layer:"FE",owner:null,branch:"feat/10-currencies-filter",status:"not-started",shares:"nav (w/ 09)",tests:["smoke"],
+      ac:["type → filters live, no reload","clear → all 8 return","no match → friendly row"]}
+  ]
+};
+
+const STOPS = [
+  {icon:"⑃",label:"Fork &amp; set up",title:"Fork & set up the team repo",tag:"once per team",
+    text:"One member forks the skeleton, adds teammates as collaborators, and protects <span class='mono'>main</span> (require a PR + 1 review). Everyone else clones.",
+    cmd:"<span class='c'># owner:</span> fork → Settings → Collaborators → Branches: protect main",
+    done:"teammates can push branches; nothing reaches <b>main</b> without a PR."},
+  {icon:"⑂",label:"Claim &amp; branch",title:"Claim a requirement & branch",tag:"every feature",
+    text:"Pick an unclaimed requirement off the Board. Always start from a fresh <span class='mono'>main</span>.",
+    cmd:"git switch main &amp;&amp; git pull\ngit switch -c feat/NN-slug",
+    done:"you're on your own branch, nobody else's work underneath you."},
+  {icon:"✳",label:"Build with AI",title:"Build with AI",tag:"describe → generate → verify → refine",
+    text:"Brief the AI with the requirement's spec — the acceptance criteria <i>and</i> the exact checkpoint numbers (it can't guess 1.0818). Generate; hand-code where you're faster.",
+    cmd:"<span class='c'># paste the requirement's ACs + checkpoints into your assistant</span>",
+    done:"the feature builds and does what the spec says."},
+  {icon:"⚗",label:"Test",title:"Test — the fast tier",tag:"unit + contract",
+    text:"Run the fast tests. No Docker needed — they mock the database.",
+    cmd:"./mvnw test",tiers:["unit"],
+    done:"unit + contract tests are <b>green</b>."},
+  {icon:"⌾",label:"Verify",title:"Verify — the whole thing",tag:"all three tiers",
+    text:"Add the real-MySQL integration test, then boot the stack and walk <i>every</i> acceptance criterion against the live app.",
+    cmd:"./mvnw verify\ndocker compose up   <span class='c'># then tick every AC</span>",tiers:["unit","db","smoke"],
+    done:"all tiers green <b>and</b> every acceptance criterion ticked by you."},
+  {icon:"⎘",label:"Commit &amp; push",title:"Commit & push",tag:"",
+    text:"Small commit, descriptive message, push the branch to GitHub.",
+    cmd:"git commit -am \"feat(NN): …\"\ngit push -u origin feat/NN-slug",
+    done:"your branch is on GitHub, ready for a PR."},
+  {icon:"⇄",label:"Open PR",title:"Open a pull request",tag:"",
+    text:"Open a PR into <span class='mono'>main</span> and list the acceptance criteria in the description so the reviewer knows what to check.",
+    cmd:"<span class='c'># GitHub → Compare &amp; pull request → describe the ACs</span>",
+    done:"PR open, a teammate requested as reviewer."},
+  {icon:"⛨",label:"CI gate",title:"Gate 1 — CI must pass",tag:"automated",gate:true,
+    text:"Two jobs run on every push: <b>test</b> (unit + contract + DB integration) and <b>smoke</b> (boots the whole stack and curls it). Both must be green.",
+    cmd:"<span class='c'># .github/workflows/ci.yml — runs automatically</span>",tiers:["unit","db","smoke"],
+    done:"both CI checks are <b>green</b>. The first lock clicks open."},
+  {icon:"⛨",label:"Review gate",title:"Gate 2 — a teammate reviews",tag:"human",gate:true,
+    text:"A teammate checks out your branch, re-runs it, re-ticks every AC themselves, and approves. Fresh eyes, real run — not a rubber stamp.",
+    cmd:"<span class='c'># reviewer: git switch feat/NN-slug → ./mvnw verify → tick ACs → Approve</span>",
+    done:"approved. The second lock clicks open — both gates now open."},
+  {icon:"✔",label:"Merge to main",title:"Merge to main",tag:"both gates open",
+    text:"With CI green and the review approved, merge. The feature commit joins the trunk — and <b>everyone pulls</b> so the next branch starts from it.",
+    cmd:"<span class='c'># Merge pull request →</span> git switch main &amp;&amp; git pull",
+    done:"it's on <b>main</b>, running for the whole team. Back to Claim &amp; branch."}
+];
+
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const initials=n=>n.slice(0,2).toUpperCase();
+const memberColor=id=>DATA.members[id]?DATA.members[id].color:"var(--faint)";
+
+/* ---------- header ---------- */
+$("#teamName").textContent=DATA.team;
+$("#clkElapsed").textContent=DATA.sprint.elapsed;
+$("#clkTotal").textContent=DATA.sprint.total;
+
+/* theme toggle */
+const root=document.documentElement;
+$("#themeBtn").onclick=()=>{
+  const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+  root.setAttribute("data-theme",cur==="dark"?"light":"dark");
+};
+
+/* ---------- view toggle ---------- */
+$("#tabFlow").onclick=()=>setView("flow");
+$("#tabBoard").onclick=()=>setView("board");
+function setView(v){
+  $("#flow").hidden=v!=="flow"; $("#board").hidden=v!=="board";
+  $("#tabFlow").classList.toggle("active",v==="flow");
+  $("#tabBoard").classList.toggle("active",v==="board");
+}
+
+/* ---------- FLOW: stops ---------- */
+const track=$("#track"), runner=$("#runner");
+STOPS.forEach((s,i)=>{
+  const el=document.createElement("div");
+  el.className="stop"+(s.gate?" gate":"");
+  el.dataset.i=i;
+  el.innerHTML=`<div class="line"></div>
+    <div class="node" tabindex="0" role="button" aria-label="${s.label.replace(/&amp;/g,'and')}">${s.icon}</div>
+    <div class="lbl"><span class="num">${s.gate?'GATE':String(i).padStart(2,'0')}</span>${s.gate?'<b>'+s.label+'</b>':s.label}</div>`;
+  const open=()=>showDetail(i,el);
+  el.querySelector(".node").addEventListener("click",open);
+  el.querySelector(".node").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
+  track.appendChild(el);
+});
+let activeStop=-1;
+function showDetail(i,el){
+  const d=$("#detail"), inner=$("#detailInner"), s=STOPS[i];
+  if(activeStop===i){d.classList.remove("open");activeStop=-1;$$(".stop").forEach(x=>x.classList.remove("lit"));return;}
+  activeStop=i;
+  $$(".stop").forEach(x=>x.classList.remove("lit")); el.classList.add("lit");
+  const tiers=(s.tiers||[]).map(t=>`<span class="tier ${t}">${t==='unit'?'unit + contract':t==='db'?'DB integration':'full-stack smoke'}</span>`).join("");
+  inner.innerHTML=`
+    <div style="flex:2;min-width:230px">
+      <h3>${s.icon} ${s.title} ${s.tag?`<span class="tag">${s.tag}</span>`:""}</h3>
+      <p>${s.text}</p>
+      <div class="cmd">${s.cmd.replace(/\n/g,"<br>")}</div>
+      ${tiers?`<div class="tiers">${tiers}</div>`:""}
+    </div>
+    <div class="side">
+      <div class="done-when"><b>Done here →</b><br>${s.done}</div>
+    </div>`;
+  d.classList.add("open");
+}
+
+/* ---------- FLOW: play ---------- */
+const playBtn=$("#playBtn"), playWho=$("#playWho"), scroll=$(".track-scroll");
+let playing=false;
+const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+playBtn.onclick=runPlay;
+async function runPlay(){
+  if(playing) return; playing=true; playBtn.disabled=true;
+  const stops=$$(".stop");
+  const feat=DATA.reqs.find(r=>r.status==="in-progress")||DATA.reqs[2];
+  runner.textContent=feat.id;
+  playWho.innerHTML=`shipping <b>${feat.id} ${feat.title}</b>`;
+  stops.forEach(s=>{s.classList.remove("lit","open");});
+  runner.classList.add("on");
+  const wait=ms=>new Promise(r=>setTimeout(r,reduce?0:ms));
+  for(let i=0;i<stops.length;i++){
+    const st=stops[i], node=st.querySelector(".node");
+    const x=node.offsetLeft+node.offsetWidth/2-runner.offsetWidth/2;
+    runner.style.transform=`translateX(${x}px)`;
+    scroll.scrollTo({left:Math.max(0,x-scroll.clientWidth/2),behavior:reduce?"auto":"smooth"});
+    await wait(720);
+    st.classList.add("lit");
+    // fill the segment behind
+    if(i>0) stops[i-1].querySelector(".line").classList.add("done");
+    if(st.classList.contains("gate")){ await wait(520); st.classList.add("open"); }
+    await wait(360);
+  }
+  await wait(300);
+  playWho.innerHTML=`<b style="color:var(--mint)">${feat.id} merged to main ✔</b>`;
+  await wait(1400);
+  runner.classList.remove("on");
+  stops.forEach(s=>s.classList.remove("lit","open"));
+  stops.forEach(s=>s.querySelector(".line").classList.remove("done"));
+  playWho.textContent=""; runner.style.transform="translateX(-100px)";
+  playBtn.disabled=false; playing=false;
+}
+
+/* ---------- FLOW: git graph ---------- */
+(function drawGraph(){
+  const svg=$("#graph"); const W=880,H=150,trunkY=112, x0=20, gap=78;
+  const stat=s=>({merged:"var(--mint)","in-review":"var(--blue)","in-progress":"var(--amber)","not-started":"var(--border)"}[s]);
+  const nodes=[{label:"skeleton",x:x0},...DATA.reqs.map((r,i)=>({...r,x:x0+gap*(i+1)}))];
+  const trunkEnd=x0+gap*(DATA.reqs.length)+30;
+  let out=`<line x1="${x0}" y1="${trunkY}" x2="${trunkEnd}" y2="${trunkY}" stroke="var(--mint)" stroke-width="3"/>`;
+  // seed dot
+  out+=`<circle cx="${x0}" cy="${trunkY}" r="6" fill="var(--faint)"/><text x="${x0}" y="${trunkY+22}" fill="var(--faint)" font-size="10" font-family="var(--font-mono)" text-anchor="middle">skeleton</text>`;
+  DATA.reqs.forEach((r,i)=>{
+    const x=x0+gap*(i+1), col=stat(r.status);
+    if(r.status==="merged"){
+      out+=`<circle cx="${x}" cy="${trunkY}" r="7" fill="${col}" stroke="var(--panel)" stroke-width="2"/>`;
+      out+=`<text x="${x}" y="${trunkY+22}" fill="var(--muted)" font-size="10" font-family="var(--font-mono)" text-anchor="middle">${r.id}</text>`;
+    } else {
+      const topY = r.track==="seq"?40:66;
+      out+=`<path d="M ${x-30} ${trunkY} C ${x-30} ${topY}, ${x} ${topY}, ${x} ${topY}" fill="none" stroke="${col}" stroke-width="2.5" ${r.status==="not-started"?'stroke-dasharray="3 4" opacity=".6"':''}/>`;
+      out+=`<circle cx="${x}" cy="${topY}" r="6" fill="${r.status==="not-started"?"var(--panel)":col}" stroke="${col}" stroke-width="2"/>`;
+      out+=`<text x="${x+9}" y="${topY+3}" fill="var(--muted)" font-size="10" font-family="var(--font-mono)">${r.id}</text>`;
+      if(r.status==="in-review"||r.status==="in-progress")
+        out+=`<path d="M ${x} ${topY} C ${x+30} ${topY}, ${x+30} ${trunkY}, ${x+30} ${trunkY}" fill="none" stroke="${col}" stroke-width="2.5" stroke-dasharray="3 4" opacity=".5"/>`;
+    }
+  });
+  svg.setAttribute("viewBox",`0 0 ${trunkEnd+20} ${H}`);
+  svg.innerHTML=out;
+})();
+
+/* ---------- BOARD: scorebar ---------- */
+(function scorebar(){
+  const s=DATA.score;
+  const cells=[
+    ["merged","Merged","merged"],["inReview","In review","review"],
+    ["inProgress","In progress","progress"],["notStarted","Not started","rest"]
+  ];
+  $("#scorebar").innerHTML=cells.map(([k,l,c])=>`<div class="stat ${c}"><div class="n">${s[k]}</div><div class="l">${l}</div></div>`).join("")
+   +`<div class="burn"><div class="top"><span>Progress toward all ${s.total} requirements</span><span>${s.merged} merged · ${s.inReview+s.inProgress} in flight</span></div>
+      <div class="bar"><span class="mint" style="width:${s.merged/s.total*100}%"></span><span class="blue" style="width:${s.inReview/s.total*100}%"></span><span class="amber" style="width:${s.inProgress/s.total*100}%"></span></div></div>`;
+})();
+
+/* ---------- BOARD: trunk ---------- */
+$("#trunk").innerHTML=DATA.main.trunk.map((c,i)=>
+  `<div class="commit"><div class="c-dot ${i===0?'seed':''}"></div><span class="c-lbl">${c}</span><div class="c-line"></div></div>`
+).join("")+`<div class="commit"><div class="c-dot" style="background:var(--panel-3);box-shadow:0 0 0 1.5px var(--border)"></div><span class="c-lbl" style="color:var(--faint)">…next merge</span></div>`;
+
+/* ---------- BOARD: cards ---------- */
+const layerName={DB:"DB",API:"API",FE:"FE",full:"full-stack"};
+function cardHTML(r){
+  const m=r.owner?DATA.members[r.owner]:null;
+  const av=m?`<div class="av" data-owner="${r.owner}" title="${m.name}" style="background:${m.color}">${initials(m.name)}</div>`
+            :`<div class="av unclaimed" title="unclaimed">+</div>`;
+  const dep = r.dep? r.dep.filter(d=>{const dr=DATA.reqs.find(x=>x.id===d);return dr&&dr.status!=="merged";}):[];
+  const blocked = (r.status==="not-started"&&dep.length)?`<div class="blocked">🔒 waiting on ${dep.map(d=>d).join(", ")}</div>`:"";
+  const hazard = r.shares?`<div class="hazard">⚠ shares ${r.shares}</div>`:"";
+  const ci = r.ci?`<span class="ci ${r.ci}"><span class="cidot"></span>CI ${r.ci}</span>`:"";
+  return `<div class="card s-${r.status}" data-owner="${r.owner||''}" tabindex="0" role="button">
+    <div class="stripe"></div>
+    <div class="row1"><span class="rid">${r.id}</span><span class="badge ${r.layer}">${layerName[r.layer]}</span>${ci}</div>
+    <h3>${r.title}</h3>
+    <div class="branch">${r.branch}</div>
+    <div class="meta"><span class="pill ${r.status}"><span class="pdot"></span>${r.status.replace("-"," ")}</span>${av}</div>
+    ${hazard}${blocked}
+    <div class="back">${r.ac.map(a=>`<div class="ac">${a}</div>`).join("")}</div>
+  </div>`;
+}
+$("#cardsSeq").innerHTML=DATA.reqs.filter(r=>r.track==="seq").map(cardHTML).join("");
+$("#cardsPar").innerHTML=DATA.reqs.filter(r=>r.track==="par").map(cardHTML).join("");
+
+// flip on card click; avatar click = spotlight
+let spot=null;
+$$(".card").forEach(c=>{
+  c.addEventListener("click",e=>{
+    if(e.target.closest(".av")){toggleSpot(e.target.closest(".av").dataset.owner);e.stopPropagation();return;}
+    c.classList.toggle("flipped");
+  });
+  c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.toggle("flipped");}});
+});
+function toggleSpot(owner){
+  if(!owner) return;
+  const cards=$$(".card");
+  if(spot===owner){spot=null;cards.forEach(c=>c.classList.remove("dim","hl"));return;}
+  spot=owner;
+  cards.forEach(c=>{const on=c.dataset.owner===owner;c.classList.toggle("hl",on);c.classList.toggle("dim",!on);});
+}
+
+/* ---------- BOARD: legend ---------- */
+$("#legend").innerHTML=[
+  ["var(--mint)","Merged"],["var(--blue)","In review"],["var(--amber)","In progress"],["var(--border)","Not started"],
+].map(([c,l])=>`<span class="li"><span class="sw" style="background:${c}"></span>${l}</span>`).join("")
+ +`<span class="li"><span class="sw" style="background:var(--mint)"></span>DB</span>
+   <span class="li"><span class="sw" style="background:var(--blue)"></span>API</span>
+   <span class="li"><span class="sw" style="background:var(--purple)"></span>FE</span>
+   <span class="li">⚠ shared file → coordinate</span><span class="li">🔒 blocked by a dependency</span>`;
+</script>

@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: fxdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      # Host 3307 (not 3306) so it never clashes with the local MySQL you installed in
+      # Week 1. The app reaches the DB over the compose network as db:3306 regardless;
+      # this mapping is only so you can inspect it from Workbench on localhost:3307.
+      - "3307:3306"
+    volumes:
+      # fxdb seed (seed-42 dataset) runs automatically on first start
+      - ./ops/fxdb-seed.sql:/docker-entrypoint-initdb.d/01-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uappuser", "-papppass"]
+      interval: 5s
+      retries: 10
+
+  fx-app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/fxdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppass
+    depends_on:
+      db:
+        condition: service_healthy

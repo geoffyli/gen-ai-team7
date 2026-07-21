@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FX App — Welcome</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand"><span class="fx">FX</span> App</span>
+    <nav class="menu">
+      <a href="/" class="active">Welcome</a>
+      <a href="/currencies.html">Currencies</a>
+      <a href="#" class="todo">Rates</a>
+      <a href="#" class="todo">Convert</a>
+      <a href="#" class="todo">History</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Welcome to your FX App</h1>
+    <p class="lede">
+      This is a <strong>running full-stack skeleton</strong> — a MySQL database (already
+      seeded), a Spring Boot backend, and this web front end, all started with one command.
+      Your team's job this afternoon is to grow it into a working currency-exchange app by
+      shipping features, one branch and one pull request at a time.
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>✅ Already works</h3>
+        <p>The <strong>Currencies</strong> page is a complete sample feature: database →
+          REST API → this UI. It's your pattern to copy.</p>
+      </div>
+      <div class="card">
+        <h3>🧭 Your backlog</h3>
+        <p>The greyed-out menu items — Rates, Convert, History — are features you build.
+          See <span class="mono">requirements.md</span>.</p>
+      </div>
+      <div class="card">
+        <h3>🤖 The rule</h3>
+        <p>Use AI to go fast; a feature is <em>done</em> only when it <em>works</em> and is
+          <strong>merged to main</strong>.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Is everything running?</h2>
+      <p class="lede" style="margin-bottom:.6rem">Two quick checks (open in a new tab or curl):</p>
+      <p>
+        App is up → <a class="link" href="/health" target="_blank">/health</a>
+        &nbsp;·&nbsp;
+        Database is seeded → <a class="link" href="/api/health/db" target="_blank">/api/health/db</a>
+      </p>
+      <p class="status">Expect <span class="mono">{"status":"UP"}</span> and table counts
+        <span class="mono">currency:8, account:20, fx_rate:30, transfer:200</span>.</p>
+    </div>
+
+    <p class="footer-note">
+      Start with the <a class="link" href="/currencies.html">Currencies</a> page, read how it's
+      built in <span class="mono">com.fx.sample</span>, then copy that slice for your first
+      real feature. Full guidance: <span class="mono">README.md</span>.
+    </p>
+  </main>
+</body>
+</html>
