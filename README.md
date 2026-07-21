@@ -174,6 +174,9 @@ board of what's done and what's next.
 
 ---
 
+### Team 07
+Rick
+
 <details>
 <summary><strong>Instructor notes</strong> (not part of the student flow)</summary>
 
